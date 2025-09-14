@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gemini Image Generator Free</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h2>Tạo ảnh bằng Gemini API Free</h2>
+    <input type="text" id="prompt" placeholder="Nhập mô tả ảnh">
+    <button onclick="generateImage()">Tạo ảnh</button>
+    <br>
+    <img id="result" width="512" />
+    <br>
+    <button id="downloadBtn">Tải ảnh xuống</button>
+
+    <script>
+        async function generateImage() {
+            const prompt = document.getElementById("prompt").value;
+            const res = await fetch("/generate", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({prompt})
+            });
+            const data = await res.json();
+            if(data.image){
+                const imgSrc = "data:image/png;base64," + data.image;
+                const img = document.getElementById("result");
+                img.src = imgSrc;
+
+                // Hiển thị nút tải xuống
+                const downloadBtn = document.getElementById("downloadBtn");
+                downloadBtn.style.display = "inline-block";
+                downloadBtn.onclick = () => {
+                    const a = document.createElement("a");
+                    a.href = imgSrc;
+                    a.download = "gemini_image.png";
+                    a.click();
+                };
+            } else {
+                alert("Lỗi tạo ảnh: " + (data.error || "Không xác định"));
+            }
+        }
+    </script>
+</body>
+</html>
